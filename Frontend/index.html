@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Activity Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar" id="navbar" style="display: none;">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Activity Tracker</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#" onclick="showDashboard()" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="#" onclick="showClasses()" class="nav-link">
+                    <i class="fas fa-chalkboard"></i> Classes
+                </a>
+                <a href="#" onclick="showReports()" class="nav-link">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <div class="nav-notifications">
+                    <a href="#" onclick="showNotifications()" class="nav-link notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-count" class="notification-badge" style="display: none;">0</span>
+                    </a>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">
+                        <i class="fas fa-user"></i> <span id="user-name">User</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <!-- Login/Register Page -->
+        <div id="auth-page" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1><i class="fas fa-graduation-cap"></i> Student Activity Tracker</h1>
+                    <p>Manage your classes and activities efficiently</p>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form">
+                    <h2>Login</h2>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                    <p class="auth-switch">
+                        Don't have an account? 
+                        <a href="#" onclick="showRegister()">Register here</a>
+                    </p>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form" style="display: none;">
+                    <h2>Register</h2>
+                    <form onsubmit="handleRegister(event)">
+                        <div class="form-group">
+                            <label for="register-name">Full Name</label>
+                            <input type="text" id="register-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                    <p class="auth-switch">
+                        Already have an account? 
+                        <a href="#" onclick="showLogin()">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="stats-grid">
+                <!-- Stats will be loaded dynamically -->
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="dashboard-section">
+                <h2>Recent Activities</h2>
+                <div class="activity-list" id="recent-activities">
+                    <!-- Recent activities will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Classes Overview -->
+            <div class="dashboard-section">
+                <h2>My Classes</h2>
+                <div class="class-grid" id="dashboard-classes">
+                    <!-- Classes will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Classes Page -->
+        <div id="classes-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <h1><i class="fas fa-chalkboard"></i> My Classes</h1>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="showArchivedClasses()">
+                        <i class="fas fa-archive"></i> Archived Rooms
+                    </button>
+                    <button class="btn btn-primary" onclick="showCreateClassModal()">
+                        <i class="fas fa-plus"></i> Create Class
+                    </button>
+                    <button class="btn btn-secondary" onclick="showJoinClassModal()">
+                        <i class="fas fa-sign-in-alt"></i> Join Class
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="class-search" class="search-input" placeholder="Search classes by name, subject, or section..." onkeyup="filterClasses()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="class-grid" id="classes-grid">
+                <!-- Classes will be loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Archived Classes Page -->
+        <div id="archived-classes-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <button class="btn btn-secondary" onclick="showClasses()">
+                    <i class="fas fa-arrow-left"></i> Back to Active Classes
+                </button>
+                <h1><i class="fas fa-archive"></i> Archived Rooms</h1>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="archived-search" class="search-input" placeholder="Search archived classes..." onkeyup="filterArchivedClasses()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="class-grid" id="archived-classes-grid">
+                <!-- Archived classes will be loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Class Details Page -->
+        <div id="class-details-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <button class="btn btn-secondary" onclick="showClasses()">
+                    <i class="fas fa-arrow-left"></i> Back to Classes
+                </button>
+                <h1 id="class-details-title">Class Details</h1>
+                <div class="page-actions" id="class-actions">
+                    <!-- Actions will be loaded based on user role -->
+                </div>
+            </div>
+
+            <div class="class-details-content">
+                <div class="class-info-card" id="class-info">
+                    <!-- Class information will be loaded here -->
+                </div>
+
+                <div class="class-tabs">
+                    <button class="tab-btn active" onclick="showTab('activities')">Activities</button>
+                    <button class="tab-btn" onclick="showTab('members')">Members</button>
+                </div>
+
+                <div id="activities-tab" class="tab-content active">
+                    <!-- Announcements Section -->
+                    <div id="announcements-section" class="announcements-section" style="margin-bottom: 30px;">
+                        <!-- Announcements will be loaded here -->
+                    </div>
+                    
+                    <div class="activities-list" id="class-activities">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="members-tab" class="tab-content">
+                    <div class="members-list" id="class-members">
+                        <!-- Members will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Details Page -->
+        <div id="activity-details-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <button class="btn btn-secondary" onclick="backToClass()">
+                    <i class="fas fa-arrow-left"></i> Back to Class
+                </button>
+                <h1 id="activity-details-title">Activity Details</h1>
+            </div>
+
+            <div class="activity-details-content">
+                <div class="activity-main-card" id="activity-main-content">
+                    <!-- Activity content will be loaded here -->
+                </div>
+
+                <div class="activity-submission-section" id="activity-submission">
+                    <!-- Submission area will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="reports-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-bar"></i> Reports</h1>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card" onclick="generateReport('student-performance')">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Student Performance</h3>
+                    <p>Analyze student performance across classes</p>
+                </div>
+                <div class="report-card" onclick="generateReport('activity-analysis')">
+                    <i class="fas fa-tasks"></i>
+                    <h3>Activity Analysis</h3>
+                    <p>Review activity completion and engagement</p>
+                </div>
+                <div class="report-card" onclick="generateReport('class-overview')">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Class Overview</h3>
+                    <p>Comprehensive class statistics</p>
+                </div>
+                <div class="report-card" onclick="generateReport('submission-trends')">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Submission Trends</h3>
+                    <p>Track submission patterns over time</p>
+                </div>
+            </div>
+
+            <div id="report-results" class="report-results">
+                <!-- Report results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Notifications Page -->
+        <div id="notifications-page" class="page-content" style="display: none;">
+            <div class="page-header">
+                <h1><i class="fas fa-bell"></i> Notifications</h1>
+                <button class="btn btn-secondary" onclick="markAllNotificationsRead()">
+                    <i class="fas fa-check-double"></i> Mark All Read
+                </button>
+            </div>
+            
+            <div class="notifications-container">
+                <div class="notification-filters">
+                    <button class="filter-btn active" onclick="filterNotifications('all')">All</button>
+                    <button class="filter-btn" onclick="filterNotifications('join-requests')">Join Requests</button>
+                    <button class="filter-btn" onclick="filterNotifications('submissions')">New Submissions</button>
+                    <button class="filter-btn" onclick="filterNotifications('system')">System</button>
+                </div>
+                
+                <div id="notifications-list" class="notifications-list">
+                    <!-- Notifications will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+    
+    <!-- Create Class Modal -->
+    <div id="create-class-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Class</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="handleCreateClass(event)">
+                <div class="form-group">
+                    <label for="class-name">Class Name *</label>
+                    <input type="text" id="class-name" required placeholder="e.g., Mathematics 101">
+                </div>
+                <div class="form-group">
+                    <label for="class-subject">Subject (Optional)</label>
+                    <input type="text" id="class-subject" placeholder="e.g., Mathematics, Science, English">
+                </div>
+                <div class="form-group">
+                    <label for="class-section">Section (Optional)</label>
+                    <input type="text" id="class-section" placeholder="e.g., A, B, Morning, Afternoon">
+                </div>
+                <div class="form-group">
+                    <label for="class-description">Description (Optional)</label>
+                    <textarea id="class-description" rows="3" placeholder="Brief description of the class"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Class</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Join Class Modal -->
+    <div id="join-class-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Join Class</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="handleJoinClass(event)">
+                <div class="form-group">
+                    <label for="class-code">Class Code</label>
+                    <input type="text" id="class-code" placeholder="Enter 6-character class code" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Join Class</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Activity Modal (Enhanced) -->
+    <div id="create-activity-modal" class="modal">
+        <div class="modal-content modal-content-large">
+            <div class="modal-header-enhanced">
+                <div class="modal-title-section">
+                    <i class="fas fa-plus-circle modal-icon"></i>
+                    <h2>Create New Assignment</h2>
+                </div>
+                <button class="modal-close-enhanced" onclick="closeModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="create-activity-form" onsubmit="handleCreateActivityEnhanced(event)" enctype="multipart/form-data">
+                <div class="modal-body-enhanced">
+                    
+                    <!-- Basic Information Section -->
+                    <div class="form-section-enhanced">
+                        <h3 class="section-title">
+                            <i class="fas fa-info-circle"></i> Basic Information
+                        </h3>
+                        
+                        <div class="form-group-enhanced">
+                            <label for="activity-title" class="form-label-enhanced">
+                                Activity Title <span class="required-star">*</span>
+                            </label>
+                            <input type="text" id="activity-title" class="form-input-enhanced" 
+                                   placeholder="e.g., Math Assignment Chapter 5" required>
+                        </div>
+
+                        <div class="form-group-enhanced">
+                            <label for="activity-description" class="form-label-enhanced">
+                                Description
+                            </label>
+                            <textarea id="activity-description" class="form-textarea-enhanced" rows="5" 
+                                      placeholder="Provide detailed instructions, requirements, and any additional information for students..."></textarea>
+                        </div>
+
+                        <div class="form-group-enhanced">
+                            <label for="activity-deadline" class="form-label-enhanced">
+                                Deadline (Optional)
+                            </label>
+                            <input type="datetime-local" id="activity-deadline" class="form-input-enhanced">
+                            <small class="form-hint">Leave empty for no deadline</small>
+                        </div>
+                    </div>
+
+                    <!-- Submission Control Section -->
+                    <div class="form-section-enhanced">
+                        <h3 class="section-title">
+                            <i class="fas fa-toggle-on"></i> Submission Control
+                        </h3>
+                        
+                        <div class="form-group-enhanced">
+                            <label for="activity-max-score" class="form-label-enhanced">
+                                Max Score <span class="required-star">*</span>
+                            </label>
+                            <input type="number" id="activity-max-score" class="form-input-enhanced" 
+                                   placeholder="e.g., 100" value="100" min="1" step="0.01" required>
+                            <small class="form-hint">Set the maximum score for this activity (e.g., 50, 100, 200)</small>
+                        </div>
+                        
+                        <div class="toggle-container-enhanced">
+                            <label class="toggle-label-enhanced">
+                                <input type="checkbox" id="activity-accepting-submissions" checked>
+                                <span class="toggle-slider-enhanced"></span>
+                                <div class="toggle-text-enhanced">
+                                    <span class="toggle-title-enhanced">Open for Submissions</span>
+                                    <span class="toggle-subtitle-enhanced">Students can submit and unsubmit work</span>
+                                </div>
+                            </label>
+                            <div class="toggle-info-box">
+                                <p><strong>ON:</strong> Students can submit work immediately after you create this activity</p>
+                                <p><strong>OFF:</strong> Students can view the activity but cannot submit until you enable submissions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Attachments Section -->
+                    <div class="form-section-enhanced">
+                        <h3 class="section-title">
+                            <i class="fas fa-paperclip"></i> File Attachments
+                        </h3>
+                        
+                        <div class="file-upload-area">
+                            <label for="activity-files" class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose Files to Attach</span>
+                                <small>PDF, Word, PowerPoint, Images, Videos (Max 20MB each)</small>
+                            </label>
+                            <input type="file" id="activity-files" class="file-input-hidden" 
+                                   multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.txt,.zip,.mp4,.mov">
+                        </div>
+
+                        <!-- File Queue -->
+                        <div id="file-queue" class="file-queue">
+                            <!-- Selected files will appear here -->
+                        </div>
+                    </div>
+
+                    <!-- Teacher Notes Section -->
+                    <div class="form-section-enhanced">
+                        <h3 class="section-title">
+                            <i class="fas fa-sticky-note"></i> Teacher's Notes (Private)
+                        </h3>
+                        
+                        <div class="form-group-enhanced">
+                            <textarea id="teacher-notes" class="form-textarea-enhanced" rows="4" 
+                                      placeholder="Add private notes for your reference. Students will not see these notes."></textarea>
+                            <div class="privacy-notice">
+                                <i class="fas fa-lock"></i>
+                                <span>These notes are only visible to you</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal Footer with Actions -->
+                <div class="modal-footer-enhanced">
+                    <button type="button" class="btn btn-secondary-enhanced" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary-enhanced">
+                        <i class="fas fa-check"></i> Create Activity
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Activity Modal -->
+    <div id="edit-activity-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-pencil-alt"></i> Edit Activity</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="handleEditActivity(event)" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="edit-activity-title">Activity Title *</label>
+                    <input type="text" id="edit-activity-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-activity-description">Description</label>
+                    <textarea id="edit-activity-description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-activity-deadline">Deadline (Optional)</label>
+                    <input type="datetime-local" id="edit-activity-deadline">
+                </div>
+                <div class="form-group">
+                    <label for="edit-activity-max-score">Max Score *</label>
+                    <input type="number" id="edit-activity-max-score" min="1" step="0.01" value="100" required>
+                    <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
+                        Set the maximum score for this activity (e.g., 50, 100, 200)
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="edit-activity-accepting-submissions" checked>
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Open for Submissions</span>
+                    </label>
+                    <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
+                        When OFF, students cannot submit or unsubmit work
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label>Current Attachments</label>
+                    <div id="edit-existing-files">
+                        <!-- Existing files will be shown here -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-activity-files">Add More Files (Optional)</label>
+                    <input type="file" id="edit-activity-files" multiple accept="*/*">
+                    <small>New files will be added to existing attachments</small>
+                </div>
+                <div class="form-group">
+                    <label for="edit-teacher-notes">Teacher's Notes (Private)</label>
+                    <textarea id="edit-teacher-notes" rows="3" placeholder="Private notes for your reference only"></textarea>
+                    <small style="color: var(--text-secondary);">These notes are only visible to you.</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Activity Confirmation Modal -->
+    <div id="delete-activity-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle" style="color: var(--error-color);"></i> Delete Activity</h2>
+                <button class="modal-close" onclick="closeDeleteActivityModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px;">
+                    <strong>Are you sure you want to delete this activity?</strong>
+                </p>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    This action will permanently delete:
+                </p>
+                <ul style="color: var(--text-secondary); margin-left: 20px; margin-bottom: 15px;">
+                    <li>The activity and all its attachments</li>
+                    <li>All student submissions and their files</li>
+                    <li>All grades and feedback</li>
+                </ul>
+                <p style="color: var(--error-color); font-weight: 600;">
+                    <i class="fas fa-exclamation-circle"></i> This action cannot be undone!
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteActivityModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-error" onclick="confirmDeleteActivity()">
+                    <i class="fas fa-trash"></i> Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Edit Activity Page (Dedicated) -->
+    <div id="edit-activity-page" class="page-content" style="display: none;">
+        <div class="page-header">
+            <button type="button" class="btn btn-secondary" onclick="cancelEditActivity()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <h1><i class="fas fa-pencil-alt"></i> Edit Activity</h1>
+            <div id="edit-page-status-badge"></div>
+        </div>
+
+        <div class="edit-activity-container">
+            <form id="edit-activity-form" onsubmit="handleEditActivityPage(event)" enctype="multipart/form-data">
+                
+                <!-- Status Badge -->
+                <div class="status-card" id="submission-status-card">
+                    <div class="status-indicator">
+                        <i class="fas fa-circle"></i>
+                        <span id="status-text">Loading...</span>
+                    </div>
+                    <small id="status-description">Checking submission status...</small>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="edit-page-title">Activity Title *</label>
+                        <input type="text" id="edit-page-title" class="form-control" required 
+                               placeholder="Enter activity title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-page-description">Description</label>
+                        <textarea id="edit-page-description" class="form-control" rows="5" 
+                                  placeholder="Describe the activity, instructions, requirements..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-page-deadline">Deadline (Optional)</label>
+                        <input type="datetime-local" id="edit-page-deadline" class="form-control">
+                        <small class="form-text">Leave empty for no deadline</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-page-max-score">Max Score *</label>
+                        <input type="number" id="edit-page-max-score" class="form-control" 
+                               min="1" step="0.01" value="100" required 
+                               placeholder="e.g., 100">
+                        <small class="form-text">Set the maximum score for this activity</small>
+                    </div>
+                </div>
+
+                <!-- Submission Control -->
+                <div class="form-section">
+                    <h3><i class="fas fa-toggle-on"></i> Submission Control</h3>
+                    
+                    <div class="toggle-control-card">
+                        <div class="toggle-header">
+                            <label class="toggle-label-large">
+                                <input type="checkbox" id="edit-page-accepting-submissions" checked>
+                                <span class="toggle-switch-large"></span>
+                                <div class="toggle-info">
+                                    <span class="toggle-title">Open for Submissions</span>
+                                    <span class="toggle-subtitle">Allow students to submit and unsubmit work</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="toggle-description">
+                            <p><strong>When ON:</strong> Students can submit work and unsubmit (if not graded)</p>
+                            <p><strong>When OFF:</strong> Students cannot submit or unsubmit work, regardless of deadline</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachments Management -->
+                <div class="form-section">
+                    <h3><i class="fas fa-paperclip"></i> Attachments</h3>
+                    
+                    <!-- Current Attachments -->
+                    <div class="attachments-list" id="edit-page-current-attachments">
+                        <p class="text-muted">Loading attachments...</p>
+                    </div>
+
+                    <!-- Add New Attachments -->
+                    <div class="form-group">
+                        <label for="edit-page-files">Add New Files</label>
+                        <input type="file" id="edit-page-files" class="form-control" multiple 
+                               accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.txt">
+                        <small class="form-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Accepted: PDF, Word, PowerPoint, Images, Text (Max 20MB per file, 10 files max)
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Teacher Notes -->
+                <div class="form-section">
+                    <h3><i class="fas fa-sticky-note"></i> Teacher's Notes (Private)</h3>
+                    
+                    <div class="form-group">
+                        <textarea id="edit-page-teacher-notes" class="form-control" rows="4" 
+                                  placeholder="Private notes for your reference only. Students cannot see these notes."></textarea>
+                        <small class="form-text">
+                            <i class="fas fa-lock"></i> These notes are only visible to you
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-error btn-lg" onclick="deleteActivityConfirm()" style="margin-right: auto;">
+                        <i class="fas fa-trash"></i> Delete Activity
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-lg" onclick="cancelEditActivity()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Universal File Viewer Modal -->
+    <div id="file-viewer-modal" class="modal file-viewer-modal" style="display: none;">
+        <div class="file-viewer-content">
+            <div class="file-viewer-header">
+                <div class="file-viewer-title">
+                    <i class="fas fa-file"></i>
+                    <span id="file-viewer-filename">Loading...</span>
+                </div>
+                <div class="file-viewer-actions">
+                    <button type="button" class="btn btn-sm btn-secondary" id="file-viewer-download-btn" title="Download">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button type="button" class="file-viewer-close" onclick="closeFileViewer()" title="Close (ESC)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="file-viewer-body" id="file-viewer-body">
+                <div class="file-viewer-loading">
+                    <div class="spinner"></div>
+                    <p>Loading file...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- JavaScript Libraries -->
+    <!-- Mammoth.js for Word document rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
+    <!-- JavaScript -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/classes.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
